@@ -36,6 +36,11 @@ const ForgetPassword = () => {
                         />
                         <i className="fas fa-envelope absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
                       </div>
+                      <div className="mb-4">
+                          <Link to="/reset-password" className="underline hover:text-green-500 duration-300 text-slate-400">
+                            Reset Password?
+                          </Link>
+                        </div>
                       <button
                         type="submit"
                         className="bg-green-600 hover:bg-green-700 py-4 px-10 text-white hover:bg-opacity-95 duration-300 mt-4"
