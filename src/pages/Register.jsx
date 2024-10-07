@@ -1,10 +1,63 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
-import Signup from '../assets/Signup.svg'
+import Signup from '../assets/Signup.svg';
+import axios from 'axios';
 
 function Register() {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [id]: value }));
+  };
+
+
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage('Les mots de passe ne correspondent pas !');
+      return;
+    }
+  
+    const dataToSend = {
+      name: formData.username,
+      email: formData.email,
+      password: formData.password,
+    };
+  
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/users/register', dataToSend);
+  
+      // Si la requête réussit
+      console.log('Inscription réussie:', response.data);
+    } catch (error) {
+      if (error.response) {
+        // Le serveur a répondu avec un code d'erreur
+        const errorMessage = error.response.data.message || 'Inscription échouée';
+        setErrorMessage(errorMessage); // Assurez-vous de n'afficher que le message d'erreur
+      } else if (error.request) {
+        console.error('Pas de réponse du serveur:', error.request);
+        setErrorMessage('Pas de réponse du serveur');
+      } else {
+        console.error('Erreur lors de l\'inscription:', error.message);
+        setErrorMessage('Une erreur s\'est produite. Veuillez réessayer.');
+      }
+    }
+  };
+  
+  
+
   return (
     <div>
       <Navbar />
@@ -25,42 +78,50 @@ function Register() {
                   <div className="w-full lg:w-1/2 mt-6 lg:mt-0">
                     <div className="flex flex-col h-full p-2 lg:p-6 xl:p-12">
                       <h2 className="text-3xl md:text-[45px] font-bold mb-2 text-white">Sign Up</h2>
-                      <form className="mt-6">
+
+                      {/* Display error message */}
+                      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+
+                      <form onSubmit={handleSubmit} className="mt-6">
                         <div className="w-full relative mb-6">
                           <input
                             type="text"
-                            className="bg-transparent border-b  dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
-                            id="uname"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            id="username"
                             placeholder="Username"
+                            value={formData.username}
+                            onChange={handleInputChange}
                           />
-                          <i className="fas fa-user absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
                         </div>
                         <div className="w-full relative mb-6">
                           <input
                             type="email"
-                            className="bg-transparent border-b  dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
                             id="email"
                             placeholder="Email Address"
+                            value={formData.email}
+                            onChange={handleInputChange}
                           />
-                          <i className="fas fa-envelope absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
                         </div>
                         <div className="w-full relative mb-6">
                           <input
-                            type="password" // Corrected input type
-                            className="bg-transparent border-b  dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
-                            id="pass"
+                            type="password"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            id="password"
                             placeholder="Password"
+                            value={formData.password}
+                            onChange={handleInputChange}
                           />
-                          <i className="fas fa-lock absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
                         </div>
                         <div className="w-full relative mb-6">
                           <input
-                            type="password" // Corrected input type
-                            className="bg-transparent border-b  dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
-                            id="con-pass"
+                            type="password"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            id="confirmPassword"
                             placeholder="Confirm Password"
+                            value={formData.confirmPassword}
+                            onChange={handleInputChange}
                           />
-                          <i className="fas fa-lock absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
                         </div>
                         <button
                           type="submit"
