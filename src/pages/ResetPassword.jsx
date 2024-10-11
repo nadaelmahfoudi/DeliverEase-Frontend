@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Importez useNavigate
 import ResetPasswordImage from '../assets/ResetPasswordImage.svg';
 import axios from 'axios';
+import validateUser from '../ValidateUser';
 
 const ResetPassword = () => {
   const [otp, setOtp] = useState('');
@@ -26,6 +27,12 @@ const ResetPassword = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    const errors = validateUser({ email, password: newPassword }); 
+    if (Object.keys(errors).length > 0) {
+      setErrorMessage(errors.email || errors.password); 
+      return;
+    }
 
     if (newPassword !== confirmPassword) {
       setErrorMessage('Les mots de passe ne correspondent pas.');
@@ -75,13 +82,13 @@ const ResetPassword = () => {
                   <div className="flex flex-col h-full p-2 lg:p-6 xl:p-12">
                     <h2 className="text-3xl md:text-[45px] font-bold mb-2 text-white">Réinitialiser le mot de passe</h2>
                     {message && <p className="text-green-500 bg-green-100 p-4 mb-4 rounded-lg">{message}</p>}
-                    {errorMessage && <p className="text-red-500 bg-red-100 p-4 mb-4 rounded-lg">{errorMessage}</p>}
+                    {errorMessage && <p className="text-white bg-red-600 p-4 mb-4 rounded-lg">{errorMessage}</p>} {/* Erreurs en blanc sur fond rouge */}
 
                     <form className="mt-6" onSubmit={handleSubmit}>
                       <div className="w-full relative mb-6">
                         <input
                           type="text"
-                          className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                          className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Changez le texte en blanc
                           id="otp"
                           placeholder="OTP"
                           value={otp}
@@ -93,7 +100,7 @@ const ResetPassword = () => {
                       <div className="w-full relative mb-6">
                         <input
                           type="password"
-                          className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                          className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Changez le texte en blanc
                           id="newPassword"
                           placeholder="Nouveau mot de passe"
                           value={newPassword}
@@ -105,7 +112,7 @@ const ResetPassword = () => {
                       <div className="w-full relative mb-6">
                         <input
                           type="password"
-                          className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                          className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Changez le texte en blanc
                           id="confirmPassword"
                           placeholder="Confirmer le mot de passe"
                           value={confirmPassword}

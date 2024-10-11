@@ -4,6 +4,7 @@ import axios from 'axios'; // Importation d'Axios
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Signin from '../assets/Signin.svg';
+import validateUser from '../ValidateUser';
 
 function Login() {
   const navigate = useNavigate();
@@ -16,41 +17,48 @@ function Login() {
     const email = event.target.email.value;
     const password = event.target.pass.value;
 
-    try {
-        // Requête avec Axios
-        const response = await axios.post('http://localhost:5000/api/v1/users/login', {
-            email,
-            password,
-        });
+    const errors = validateUser({ email, password });
 
-        if (response.status === 200) {
-          const user = response.data.user;
-      
-          // Vérifiez si l'utilisateur a été trouvé et si l'OTP a été envoyé
-          if (user && user.isVerified) {
-              console.log('Connexion réussie, OTP envoyé:', response.data);
-              
-              // Stocker l'email dans localStorage pour le réutiliser lors de la vérification de l'OTP
-              localStorage.setItem('email', user.email);
-              
-              // Rediriger vers la page de vérification OTP
-              navigate(`/verify-otp`);
-          } else {
-              setVerifiedMessage('Veuillez vérifier votre e-mail avant de vous connecter.');
-          }
-      }
-      
-    } catch (error) {
-        // Gestion de l'erreur
-        if (error.response) {
-            setErrorMessage(error.response.data.message);
-            console.error('Erreur de connexion:', error.response.data.message);
-        } else {
-            setErrorMessage('Une erreur est survenue. Veuillez réessayer.');
-            console.error('Erreur de connexion:', error.message);
-        }
+    if (Object.keys(errors).length > 0) {
+      setErrorMessage(Object.values(errors).join(', '));
+      return; 
     }
-};
+
+    try {
+      // Requête avec Axios
+      const response = await axios.post('http://localhost:5000/api/v1/users/login', {
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        const user = response.data.user;
+
+        // Vérifiez si l'utilisateur a été trouvé et si l'OTP a été envoyé
+        if (user && user.isVerified) {
+          console.log('Connexion réussie, OTP envoyé:', response.data);
+
+          // Stocker l'email dans localStorage pour le réutiliser lors de la vérification de l'OTP
+          localStorage.setItem('email', user.email);
+
+          // Rediriger vers la page de vérification OTP
+          navigate(`/verify-otp`);
+        } else {
+          setVerifiedMessage('Veuillez vérifier votre e-mail avant de vous connecter.');
+        }
+      }
+
+    } catch (error) {
+      // Gestion de l'erreur
+      if (error.response) {
+        setErrorMessage(error.response.data.message);
+        console.error('Erreur de connexion:', error.response.data.message);
+      } else {
+        setErrorMessage('Une erreur est survenue. Veuillez réessayer.');
+        console.error('Erreur de connexion:', error.message);
+      }
+    }
+  };
 
 
   return (

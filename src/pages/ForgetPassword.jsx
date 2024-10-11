@@ -64,7 +64,7 @@ const ForgetPassword = () => {
                       <div className="w-full relative mb-6">
                         <input
                           type="email"
-                          className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                          className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2 text-white"
                           id="email"
                           placeholder="Adresse e-mail"
                           value={email}
@@ -77,7 +77,7 @@ const ForgetPassword = () => {
                         type="submit"
                         className="bg-green-600 hover:bg-green-700 py-4 px-10 text-white hover:bg-opacity-95 duration-300 mt-4"
                       >
-                        Envoyer le lien de réinitialisation <i className="fas fa-arrow-right"></i>
+                        Envoyer le code de réinitialisation <i className="fas fa-arrow-right"></i>
                       </button>
                     </form>
                   </div>

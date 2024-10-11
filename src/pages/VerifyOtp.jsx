@@ -62,7 +62,7 @@ const VerifyOtp = () => {
                     <div className="relative mb-6">
                       <input
                         type="text"
-                        className="bg-transparent border-b focus:outline-none text-sm w-full py-2"
+                        className="bg-transparent border-b focus:outline-none text-sm w-full py-2 text-white"
                         id="otp"
                         placeholder="Enter OTP"
                         value={otp}

@@ -4,6 +4,7 @@ import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
 import Signup from '../assets/Signup.svg';
 import axios from 'axios';
+import validateUser from '../ValidateUser';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -23,52 +24,61 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    const errors = validateUser({
+      email: formData.email,
+      password: formData.password,
+    });
+  
+    if (Object.keys(errors).length > 0) {
+      setErrorMessage('Veuillez corriger les erreurs suivantes : ' + Object.values(errors).join(', '));
+      setSuccessMessage('');
+      return;  
+    }
+  
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage('Les mots de passe ne correspondent pas !');
-      setSuccessMessage(''); // Réinitialiser le message de succès
+      setSuccessMessage('');
       return;
     }
-
+  
     const dataToSend = {
       name: formData.username,
       email: formData.email,
       password: formData.password,
     };
-
+  
     try {
       const response = await axios.post('http://localhost:5000/api/v1/users/register', dataToSend);
-
+  
       console.log('Inscription réussie:', response.data);
       localStorage.setItem('userEmail', formData.email);
-
-      // Stocker le token 
-      const token = response.data.token; // Assurez-vous que le backend renvoie un token
+  
+      const token = response.data.token; 
       if (token) {
-        localStorage.setItem('token', token); 
-        localStorage.setItem('isVerified', 'true'); 
+        localStorage.setItem('token', token);
+        localStorage.setItem('isVerified', 'true');
       }
-
+  
       setSuccessMessage('Inscription réussie ! Veuillez vérifier votre e-mail pour confirmer votre compte.');
-      setErrorMessage(''); 
-
+      setErrorMessage('');
     } catch (error) {
       if (error.response) {
         const errorMessage = error.response.data.message || 'Inscription échouée';
         setErrorMessage(errorMessage);
-        setSuccessMessage(''); // Réinitialiser le message de succès
+        setSuccessMessage('');
       } else if (error.request) {
         console.error('Pas de réponse du serveur:', error.request);
         setErrorMessage('Pas de réponse du serveur');
-        setSuccessMessage(''); // Réinitialiser le message de succès
+        setSuccessMessage('');
       } else {
         console.error('Erreur lors de l\'inscription:', error.message);
         setErrorMessage('Une erreur s\'est produite. Veuillez réessayer.');
-        setSuccessMessage(''); // Réinitialiser le message de succès
+        setSuccessMessage('');
       }
     }
   };
-
+  
   return (
     <div>
       <Navbar />
