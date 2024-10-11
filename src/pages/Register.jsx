@@ -13,6 +13,7 @@ function Register() {
     confirmPassword: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState(''); 
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -20,43 +21,53 @@ function Register() {
     setFormData((prevState) => ({ ...prevState, [id]: value }));
   };
 
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage('Les mots de passe ne correspondent pas !');
+      setSuccessMessage(''); // Réinitialiser le message de succès
       return;
     }
-  
+
     const dataToSend = {
       name: formData.username,
       email: formData.email,
       password: formData.password,
     };
-  
+
     try {
       const response = await axios.post('http://localhost:5000/api/v1/users/register', dataToSend);
-  
-      // Si la requête réussit
+
       console.log('Inscription réussie:', response.data);
+      localStorage.setItem('userEmail', formData.email);
+
+      // Stocker le token 
+      const token = response.data.token; // Assurez-vous que le backend renvoie un token
+      if (token) {
+        localStorage.setItem('token', token); 
+        localStorage.setItem('isVerified', 'true'); 
+      }
+
+      setSuccessMessage('Inscription réussie ! Veuillez vérifier votre e-mail pour confirmer votre compte.');
+      setErrorMessage(''); 
+
     } catch (error) {
       if (error.response) {
-        // Le serveur a répondu avec un code d'erreur
         const errorMessage = error.response.data.message || 'Inscription échouée';
-        setErrorMessage(errorMessage); // Assurez-vous de n'afficher que le message d'erreur
+        setErrorMessage(errorMessage);
+        setSuccessMessage(''); // Réinitialiser le message de succès
       } else if (error.request) {
         console.error('Pas de réponse du serveur:', error.request);
         setErrorMessage('Pas de réponse du serveur');
+        setSuccessMessage(''); // Réinitialiser le message de succès
       } else {
         console.error('Erreur lors de l\'inscription:', error.message);
         setErrorMessage('Une erreur s\'est produite. Veuillez réessayer.');
+        setSuccessMessage(''); // Réinitialiser le message de succès
       }
     }
   };
-  
-  
 
   return (
     <div>
@@ -79,14 +90,17 @@ function Register() {
                     <div className="flex flex-col h-full p-2 lg:p-6 xl:p-12">
                       <h2 className="text-3xl md:text-[45px] font-bold mb-2 text-white">Sign Up</h2>
 
-                      {/* Display error message */}
-                      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+                      {/* Afficher le message de succès */}
+                      {successMessage && <p className="text-green-500 bg-green-100 p-4 mt-4 rounded-lg">{successMessage}</p>}
+                      
+                      {/* Afficher le message d'erreur */}
+                      {errorMessage && <p className="text-red-500 bg-red-100 p-4 mb-4 rounded-lg">{errorMessage}</p>}
 
                       <form onSubmit={handleSubmit} className="mt-6">
                         <div className="w-full relative mb-6">
                           <input
                             type="text"
-                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Texte en blanc
                             id="username"
                             placeholder="Username"
                             value={formData.username}
@@ -96,7 +110,7 @@ function Register() {
                         <div className="w-full relative mb-6">
                           <input
                             type="email"
-                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Texte en blanc
                             id="email"
                             placeholder="Email Address"
                             value={formData.email}
@@ -106,7 +120,7 @@ function Register() {
                         <div className="w-full relative mb-6">
                           <input
                             type="password"
-                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Texte en blanc
                             id="password"
                             placeholder="Password"
                             value={formData.password}
@@ -116,7 +130,7 @@ function Register() {
                         <div className="w-full relative mb-6">
                           <input
                             type="password"
-                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Texte en blanc
                             id="confirmPassword"
                             placeholder="Confirm Password"
                             value={formData.confirmPassword}

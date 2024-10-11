@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; // Importez useNavigate
 import ResetPasswordImage from '../assets/ResetPasswordImage.svg';
 import axios from 'axios';
 
 const ResetPassword = () => {
-  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  
+  const [email, setEmail] = useState(''); // Declare email state but don't initialize
+
   const navigate = useNavigate(); // Utilisez useNavigate pour la redirection
+
+  useEffect(() => {
+    // Retrieve the email from localStorage
+    const storedEmail = localStorage.getItem('email');
+    if (storedEmail) {
+      setEmail(storedEmail); 
+    } else {
+      // Handle case where email is not found
+      setErrorMessage('Aucune adresse e-mail trouvée ');
+    }
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -23,7 +34,7 @@ const ResetPassword = () => {
 
     try {
       const response = await axios.post('http://localhost:5000/api/v1/users/reset-password', {
-        email,
+        email, 
         otp,
         newPassword,
       });
@@ -67,18 +78,6 @@ const ResetPassword = () => {
                     {errorMessage && <p className="text-red-500 bg-red-100 p-4 mb-4 rounded-lg">{errorMessage}</p>}
 
                     <form className="mt-6" onSubmit={handleSubmit}>
-                      <div className="w-full relative mb-6">
-                        <input
-                          type="email"
-                          className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
-                          id="email"
-                          placeholder="Adresse e-mail"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                        />
-                        <i className="fas fa-envelope absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
-                      </div>
                       <div className="w-full relative mb-6">
                         <input
                           type="text"

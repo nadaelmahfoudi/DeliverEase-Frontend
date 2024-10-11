@@ -1,25 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Importation d'Axios
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Signin from '../assets/Signin.svg';
 
 function Login() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const [verifiedMessage, setVerifiedMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  // Affichage d'un message si l'e-mail a été vérifié
-  useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const verified = queryParams.get('verified');
-    const email = queryParams.get('email');
-
-    if (verified === 'true') {
-      setVerifiedMessage(`Votre e-mail a été vérifié avec succès. Vous pouvez maintenant vous connecter avec ${email}.`);
-    }
-  }, [location]);
+  const [verifiedMessage, setVerifiedMessage] = useState('');
 
   // Gestion de la soumission du formulaire
   const handleSubmit = async (event) => {
@@ -28,29 +17,41 @@ function Login() {
     const password = event.target.pass.value;
 
     try {
-      const response = await fetch('http://localhost:5000/api/v1/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+        // Requête avec Axios
+        const response = await axios.post('http://localhost:5000/api/v1/users/login', {
+            email,
+            password,
+        });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        console.log('Connexion réussie:', data);
-        // Redirection vers la page de vérification de l'OTP
-        navigate(`/verify-otp`);
-      } else {
-        setErrorMessage(data.message); // Affichage du message d'erreur en cas d'échec
-        console.error('Erreur de connexion:', data.message);
+        if (response.status === 200) {
+          const user = response.data.user;
+      
+          // Vérifiez si l'utilisateur a été trouvé et si l'OTP a été envoyé
+          if (user && user.isVerified) {
+              console.log('Connexion réussie, OTP envoyé:', response.data);
+              
+              // Stocker l'email dans localStorage pour le réutiliser lors de la vérification de l'OTP
+              localStorage.setItem('email', user.email);
+              
+              // Rediriger vers la page de vérification OTP
+              navigate(`/verify-otp`);
+          } else {
+              setVerifiedMessage('Veuillez vérifier votre e-mail avant de vous connecter.');
+          }
       }
+      
     } catch (error) {
-      console.error('Erreur de connexion:', error);
-      setErrorMessage('Une erreur est survenue. Veuillez réessayer.');
+        // Gestion de l'erreur
+        if (error.response) {
+            setErrorMessage(error.response.data.message);
+            console.error('Erreur de connexion:', error.response.data.message);
+        } else {
+            setErrorMessage('Une erreur est survenue. Veuillez réessayer.');
+            console.error('Erreur de connexion:', error.message);
+        }
     }
-  };
+};
+
 
   return (
     <div>
@@ -73,10 +74,10 @@ function Login() {
                   </div>
                   <div className="w-full lg:w-1/2 mt-6 lg:mt-0">
                     <div className="flex flex-col h-full p-2 lg:p-6 xl:p-12">
-                      <h2 className="text-3xl md:text-[45px] font-bold mb-2 text-white">Connexion</h2>
+                      <h2 className="text-3xl md:text-[45px] font-bold mb-2 text-white">Login</h2>
 
                       {verifiedMessage && (
-                        <p className="text-green-500 bg-green-100 p-4 mb-4 rounded-lg">
+                        <p className="text-red-500 bg-red-100 p-4 mb-4 rounded-lg ">
                           {verifiedMessage}
                         </p>
                       )}
@@ -92,21 +93,21 @@ function Login() {
                           <input
                             type="email"
                             name="email"
-                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2 text-white"
                             id="email"
                             placeholder="Adresse e-mail"
                           />
-                          <i className="fas fa-envelope absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
+                          <i className="fas fa-envelope absolute top-1/2 -translate-y-1/2 right-2 opacity-80 text-white"></i>
                         </div>
                         <div className="w-full relative mb-6">
                           <input
                             type="password"
                             name="pass"
-                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2 text-white"
                             id="pass"
                             placeholder="Mot de passe"
                           />
-                          <i className="fas fa-lock absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
+                          <i className="fas fa-lock absolute top-1/2 -translate-y-1/2 right-2 opacity-80 text-white"></i>
                         </div>
                         <div className="mb-4">
                           <Link to="/forgot-password" className="underline hover:text-green-500 duration-300 text-slate-400">
