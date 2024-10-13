@@ -11,55 +11,54 @@ function Login() {
   const [errorMessage, setErrorMessage] = useState('');
   const [verifiedMessage, setVerifiedMessage] = useState('');
 
-  // Gestion de la soumission du formulaire
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    const email = event.target.email.value;
-    const password = event.target.pass.value;
+// Gestion de la soumission du formulaire
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  const email = event.target.email.value;
+  const password = event.target.pass.value;
 
-    const errors = validateUser({ email, password });
+  const errors = validateUser({ email, password });
 
-    if (Object.keys(errors).length > 0) {
+  if (Object.keys(errors).length > 0) {
       setErrorMessage(Object.values(errors).join(', '));
       return; 
-    }
+  }
 
-    try {
-      // Requête avec Axios
+  try {
       const response = await axios.post('http://localhost:5000/api/v1/users/login', {
-        email,
-        password,
+          email,
+          password,
       });
 
       if (response.status === 200) {
-        const user = response.data.user;
+          const user = response.data.user;
+          const token = response.data.token;
 
-        // Vérifiez si l'utilisateur a été trouvé et si l'OTP a été envoyé
-        if (user && user.isVerified) {
-          console.log('Connexion réussie, OTP envoyé:', response.data);
+          // Vérifiez que l'utilisateur existe avant d'accéder à ses propriétés
+          if (user) {
+              localStorage.setItem('email', user.email);
+              localStorage.setItem('token', token);
 
-          // Stocker l'email dans localStorage pour le réutiliser lors de la vérification de l'OTP
-          localStorage.setItem('email', user.email);
-
-          // Rediriger vers la page de vérification OTP
-          navigate(`/verify-otp`);
-        } else {
-          setVerifiedMessage('Veuillez vérifier votre e-mail avant de vous connecter.');
-        }
+              if (user.isFirstLogin) {
+                  navigate('/dashboard'); // Redirige vers la page de vérification OTP
+              } else {
+                  navigate('/verify-otp'); // Redirige vers le tableau de bord
+              }
+          }
       }
-
-    } catch (error) {
-      // Gestion de l'erreur
+  } catch (error) {
       if (error.response) {
-        setErrorMessage(error.response.data.message);
-        console.error('Erreur de connexion:', error.response.data.message);
+          setErrorMessage(error.response.data.message);
+          console.error('Erreur de connexion:', error.response.data.message);
       } else {
-        setErrorMessage('Une erreur est survenue. Veuillez réessayer.');
-        console.error('Erreur de connexion:', error.message);
+          setErrorMessage('Une erreur est survenue. Veuillez réessayer.');
+          console.error('Erreur de connexion:', error.message);
       }
-    }
-  };
+  }
+};
 
+  
+  
 
   return (
     <div>
