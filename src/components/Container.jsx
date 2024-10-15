@@ -1,5 +1,5 @@
 import React from 'react';
-import Delivery from '../assets/Delivery.png';
+import Delivery from '../assets/Delivery.svg';
 function Container() {
   return (
     <div>

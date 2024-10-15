@@ -1,10 +1,84 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { Link } from 'react-router-dom';
-import Signup from '../assets/Signup.svg'
+import Signup from '../assets/Signup.svg';
+import axios from 'axios';
+import validateUser from '../ValidateUser';
 
 function Register() {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState(''); 
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prevState) => ({ ...prevState, [id]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const errors = validateUser({
+      email: formData.email,
+      password: formData.password,
+    });
+  
+    if (Object.keys(errors).length > 0) {
+      setErrorMessage('Veuillez corriger les erreurs suivantes : ' + Object.values(errors).join(', '));
+      setSuccessMessage('');
+      return;  
+    }
+  
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage('Les mots de passe ne correspondent pas !');
+      setSuccessMessage('');
+      return;
+    }
+  
+    const dataToSend = {
+      name: formData.username,
+      email: formData.email,
+      password: formData.password,
+    };
+  
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/users/register', dataToSend);
+  
+      console.log('Inscription réussie:', response.data);
+      localStorage.setItem('userEmail', formData.email);
+  
+      const token = response.data.token; 
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('isVerified', 'true');
+      }
+  
+      setSuccessMessage('Inscription réussie ! Veuillez vérifier votre e-mail pour confirmer votre compte.');
+      setErrorMessage('');
+    } catch (error) {
+      if (error.response) {
+        const errorMessage = error.response.data.message || 'Inscription échouée';
+        setErrorMessage(errorMessage);
+        setSuccessMessage('');
+      } else if (error.request) {
+        console.error('Pas de réponse du serveur:', error.request);
+        setErrorMessage('Pas de réponse du serveur');
+        setSuccessMessage('');
+      } else {
+        console.error('Erreur lors de l\'inscription:', error.message);
+        setErrorMessage('Une erreur s\'est produite. Veuillez réessayer.');
+        setSuccessMessage('');
+      }
+    }
+  };
+  
   return (
     <div>
       <Navbar />
@@ -25,42 +99,53 @@ function Register() {
                   <div className="w-full lg:w-1/2 mt-6 lg:mt-0">
                     <div className="flex flex-col h-full p-2 lg:p-6 xl:p-12">
                       <h2 className="text-3xl md:text-[45px] font-bold mb-2 text-white">Sign Up</h2>
-                      <form className="mt-6">
+
+                      {/* Afficher le message de succès */}
+                      {successMessage && <p className="text-green-500 bg-green-100 p-4 mt-4 rounded-lg">{successMessage}</p>}
+                      
+                      {/* Afficher le message d'erreur */}
+                      {errorMessage && <p className="text-red-500 bg-red-100 p-4 mb-4 rounded-lg">{errorMessage}</p>}
+
+                      <form onSubmit={handleSubmit} className="mt-6">
                         <div className="w-full relative mb-6">
                           <input
                             type="text"
-                            className="bg-transparent border-b  dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
-                            id="uname"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Texte en blanc
+                            id="username"
                             placeholder="Username"
+                            value={formData.username}
+                            onChange={handleInputChange}
                           />
-                          <i className="fas fa-user absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
                         </div>
                         <div className="w-full relative mb-6">
                           <input
                             type="email"
-                            className="bg-transparent border-b  dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Texte en blanc
                             id="email"
                             placeholder="Email Address"
+                            value={formData.email}
+                            onChange={handleInputChange}
                           />
-                          <i className="fas fa-envelope absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
                         </div>
                         <div className="w-full relative mb-6">
                           <input
-                            type="password" // Corrected input type
-                            className="bg-transparent border-b  dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
-                            id="pass"
+                            type="password"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Texte en blanc
+                            id="password"
                             placeholder="Password"
+                            value={formData.password}
+                            onChange={handleInputChange}
                           />
-                          <i className="fas fa-lock absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
                         </div>
                         <div className="w-full relative mb-6">
                           <input
-                            type="password" // Corrected input type
-                            className="bg-transparent border-b  dark:border-gray-200 focus:outline-none focus:border-green-500 text-sm w-full py-2"
-                            id="con-pass"
+                            type="password"
+                            className="bg-transparent border-b dark:border-gray-200 focus:outline-none focus:border-green-500 text-white text-sm w-full py-2" // Texte en blanc
+                            id="confirmPassword"
                             placeholder="Confirm Password"
+                            value={formData.confirmPassword}
+                            onChange={handleInputChange}
                           />
-                          <i className="fas fa-lock absolute top-1/2 -translate-y-1/2 right-2 opacity-80"></i>
                         </div>
                         <button
                           type="submit"

@@ -1,25 +1,31 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   // State to handle the mobile menu open/close
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate(); // To programmatically navigate
+
+  // Logout function
+  const handleLogout = () => {
+    localStorage.clear(); 
+    navigate('/'); 
+  };
 
   return (
     <nav className="relative bg-gray-700 shadow dark:bg-gray-800">
       <div className="container px-6 py-4 mx-auto">
         <div className="lg:flex lg:items-center lg:justify-between">
           <div className="flex items-center justify-between">
-          <Link 
-            to="/" 
-            className="permanent-marker-regular px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-600 hover:bg-gray-600 dark:hover:bg-gray-700"
+            <Link 
+              to="/" 
+              className="permanent-marker-regular px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-600 hover:bg-gray-600 dark:hover:bg-gray-700"
             >
-            <span className="text-green-500">D</span>
-            <span className="text-green-300">e</span>liver
-            <span className="text-green-500">E</span>
-            <span className="text-green-300">a</span>se
-          </Link>
-
+              <span className="text-green-500">D</span>
+              <span className="text-green-300">e</span>liver
+              <span className="text-green-500">E</span>
+              <span className="text-green-300">a</span>se
+            </Link>
 
             {/* Mobile menu button */}
             <div className="flex lg:hidden">
@@ -71,9 +77,9 @@ const Navbar = () => {
             } absolute inset-x-0 z-20 w-full px-6 py-4 transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 lg:mt-0 lg:p-0 lg:top-0 lg:relative lg:bg-transparent lg:w-auto lg:opacity-100 lg:translate-x-0 lg:flex lg:items-center`}
           >
             <div className="flex flex-col -mx-6 lg:flex-row lg:items-center lg:mx-8">
-            <Link to="/register" className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700">
+              <Link to="/register" className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700">
                 Register
-            </Link>
+              </Link>
               <Link
                 to="/login"
                 className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700"
@@ -82,6 +88,7 @@ const Navbar = () => {
               </Link>
               <a
                 href="#"
+                onClick={handleLogout} // Call the logout function when clicked
                 className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700"
               >
                 Logout
