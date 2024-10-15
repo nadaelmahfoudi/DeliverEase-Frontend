@@ -34,15 +34,16 @@ const handleSubmit = async (event) => {
           const user = response.data.user;
           const token = response.data.token;
 
-          // Vérifiez que l'utilisateur existe avant d'accéder à ses propriétés
+           // Vérifiez que l'utilisateur existe avant d'accéder à ses propriétés
           if (user) {
               localStorage.setItem('email', user.email);
               localStorage.setItem('token', token);
 
               if (user.isFirstLogin) {
-                  navigate('/dashboard'); // Redirige vers la page de vérification OTP
+                  navigate('/verify-otp');
+                  
               } else {
-                  navigate('/verify-otp'); // Redirige vers le tableau de bord
+                   navigate('/dashboard');
               }
           }
       }

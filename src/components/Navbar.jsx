@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
-  // State to handle the mobile menu open/close
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate(); // To programmatically navigate
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token'); 
+    setIsAuthenticated(!!token); 
+  }, []);
 
   // Logout function
   const handleLogout = () => {
-    localStorage.clear(); 
-    navigate('/'); 
+    localStorage.clear();
+    setIsAuthenticated(false);
+    navigate('/');
   };
 
   return (
@@ -17,8 +23,8 @@ const Navbar = () => {
       <div className="container px-6 py-4 mx-auto">
         <div className="lg:flex lg:items-center lg:justify-between">
           <div className="flex items-center justify-between">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="permanent-marker-regular px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-600 hover:bg-gray-600 dark:hover:bg-gray-700"
             >
               <span className="text-green-500">D</span>
@@ -77,22 +83,30 @@ const Navbar = () => {
             } absolute inset-x-0 z-20 w-full px-6 py-4 transition-all duration-300 ease-in-out bg-white dark:bg-gray-800 lg:mt-0 lg:p-0 lg:top-0 lg:relative lg:bg-transparent lg:w-auto lg:opacity-100 lg:translate-x-0 lg:flex lg:items-center`}
           >
             <div className="flex flex-col -mx-6 lg:flex-row lg:items-center lg:mx-8">
-              <Link to="/register" className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700">
-                Register
-              </Link>
-              <Link
-                to="/login"
-                className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700"
-              >
-                Login
-              </Link>
-              <a
-                href="#"
-                onClick={handleLogout} // Call the logout function when clicked
-                className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700"
-              >
-                Logout
-              </a>
+              {!isAuthenticated ? (
+                <>
+                  <Link
+                    to="/register"
+                    className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700"
+                  >
+                    Register
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700"
+                  >
+                    Login
+                  </Link>
+                </>
+              ) : (
+                <a
+                  href="#"
+                  onClick={handleLogout}
+                  className="px-3 py-2 mx-3 mt-2 text-white transition-colors duration-300 transform rounded-md lg:mt-0 dark:text-gray-200 hover:bg-green-300 dark:hover:bg-gray-700"
+                >
+                  Logout
+                </a>
+              )}
             </div>
           </div>
         </div>
